@@ -2,7 +2,8 @@
 Tic Tac Toe Player
 """
 
-import math, copy
+import math
+import copy
 
 X = "X"
 O = "O"
@@ -22,6 +23,11 @@ def player(board):
     """
     Returns player who has the next turn on a board.
     """
+    """
+    Counting the number of X's and O's in a board
+    If both are equal, then it is the X's turn
+    Else it is the O's turn
+    """
     xsPlayed = 0
     osPlayed = 0
     for row in board:
@@ -34,12 +40,14 @@ def player(board):
         return X
     else:
         return O
-    # raise NotImplementedError
 
 
 def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board.
+    """
+    """
+    Looping over the board and returning all empty cells
     """
     possibleActions = set()
     for i in range(3):
@@ -47,7 +55,6 @@ def actions(board):
             if board[i][j] == EMPTY:
                 possibleActions.add((i, j))
     return possibleActions
-    # raise NotImplementedError
 
 
 def result(board, action):
@@ -56,11 +63,10 @@ def result(board, action):
     """
     playerToPlay = player(board)
     newboard = copy.deepcopy(board)
-    if  newboard[action[0]][action[1]] != EMPTY:
+    if newboard[action[0]][action[1]] != EMPTY:
         raise ValueError('Invalid action on given board')
     newboard[action[0]][action[1]] = playerToPlay
     return newboard
-    # raise NotImplementedError
 
 
 def winner(board):
@@ -78,6 +84,7 @@ def winner(board):
             return X
         if board[0][i] == O and board[1][i] == O and board[2][i] == O:
             return O
+    # Check diagonal
     if board[0][0] == X and board[1][1] == X and board[2][2] == X:
         return X
     if board[0][0] == O and board[1][1] == O and board[2][2] == O:
@@ -87,7 +94,6 @@ def winner(board):
     if board[0][2] == O and board[1][1] == O and board[2][0] == O:
         return O
     return None
-    # raise NotImplementedError
 
 
 def terminal(board):
@@ -95,19 +101,12 @@ def terminal(board):
     Returns True if game is over, False otherwise.
     """
     if winner(board) != None:
-    #     print(board)
-    #     print(winner(board)) 
         return True
     for row in board:
         for cell in row:
             if cell == EMPTY:
-                # print(board)
-                # print("There are actions still to do")
                 return False
-    # print(board)
-    # print("Not empty")
     return True
-    # raise NotImplementedError
 
 
 def utility(board):
@@ -129,44 +128,51 @@ def minimax(board):
     Returns the optimal action for the current player on the board.
     """
     if terminal(board):
-        return None
+        return (None, None)
+    # Decining which player should move and which action should be taken
     playerToPlay = player(board)
     possibleActions = actions(board)
     bestAction = None
     mx = -1
-    mn = 10000000  
+    mn = 10000000
+    # Looping over all possible actions
     for action in possibleActions:
         resultBoard = result(board, action)
+        # if the current action results in a termianl board
         if (terminal(resultBoard)):
-            score = utility (resultBoard) 
+            score = utility(resultBoard)
+            # If the player is X and this action makes him win, then return it
             if playerToPlay == X:
                 if score == 1:
                     return (action, 1)
                 elif score > mx:
                     mx = score
                     bestAction = action
+            # Same with O
             elif playerToPlay == O:
                 if score == -1:
-                    return (action,-1)
-                elif score <mn:
+                    return (action, -1)
+                elif score < mn:
                     mn = score
                     bestAction = action
         else:
-            score =  minimax(resultBoard)
+            # if the reusulting board is not a terminal one
+            # Then recurse on the board and return its value
+            score = minimax(resultBoard)
             if playerToPlay == X:
                 if score[1] == 1:
-                    return (action,1)
+                    return (action, 1)
                 elif score[1] > mx:
                     mx = score[1]
                     bestAction = action
             elif playerToPlay == O:
                 if score[1] == -1:
-                    return (action,-1)
+                    return (action, -1)
                 elif score[1] < mn:
                     mn = score[1]
                     bestAction = action
+    # Return tuple of the best action to take and its best score
     if playerToPlay == X:
         return (bestAction, mx)
     else:
         return (bestAction, mn)
-    # raise NotImplementedError
